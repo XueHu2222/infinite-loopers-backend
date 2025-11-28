@@ -1,13 +1,9 @@
 import Express, { Router } from 'express';
-import { getOwner, getOwners, setOwner } from '../controllers/clientsController.js';
+import { getUserIdByEmail, login, register } from '../controllers/authController.ts';
 const router: Router = Express.Router();
 
-// router.get('/', (req: Request, res: Response, next: NextFunction) => {
-//   res.json('hi');
-//   next();
-// });
-router.get('/owners', getOwners);
-router.post('/owners', setOwner);
-router.get('/owners/:id', getOwner);
+router.post('/auth/register', register);
+router.post('/auth/login', login);
+router.get('/auth/userid', getUserIdByEmail);
 
 export default router;

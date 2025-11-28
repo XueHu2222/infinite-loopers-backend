@@ -13,20 +13,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Owner {
+model User {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   email     String   @unique
-  name      String?
-  pets      Pet[]
-}
-
-model Pet {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  name      String
-  specie    String   
-  breed     String
-  owner    Owner @relation(fields: [ownerId], references: [id])
-  ownerId  Int
+  username  String   @unique
+  password  String
+  
 }

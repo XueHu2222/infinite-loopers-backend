@@ -13,34 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Appointment {
-  id              Int      @id @default(autoincrement())
-  createdAt       DateTime @default(now())
-  appointmentDate DateTime @default(now())
-  status          String   @default("pending")
-  pet_id          Int
-  reason          String
-  timeslot        Timeslot @relation(fields: [timeslotId], references: [id])
-  timeslotId      Int      
-  location        Location @relation(fields: [locationId], references: [id])
-  locationId      Int      
-}
-
-model Timeslot {
-  id           Int          @id @default(autoincrement())
-  createdAt    DateTime     @default(now())
-  starttime    String
-  endtime      String
-  Appointments Appointment[]
-}
-
-model Location {
-  id           Int           @id @default(autoincrement())
-  createdAt    DateTime      @default(now())
-  name         String
-  address      String
-  city         String
-  state        String
-  zip          String
-  Appointments Appointment[]
+model Task {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String
+  endDate   DateTime?
+  status    String   @default("Not Started")
+  priority  String   @default("Medium")
+  category  String?
+  createdAt DateTime @default(now())
 }
