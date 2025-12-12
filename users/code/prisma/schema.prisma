@@ -14,10 +14,32 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  
+  id                  Int             @id @default(autoincrement())
+  createdAt           DateTime        @default(now())
+  email               String          @unique
+  username            String          @unique
+  password            String
+  coins               Int             @default(100)
+  currentCharacterId  Int             @default(1)
+
+  ownedCharacters     UserCharacter[]
+}
+
+model Character {
+  id       Int             @id @default(autoincrement())
+  name     String          @unique
+  imageUrl String
+  price    Int      @default(0) 
+
+  ownedBy  UserCharacter[]
+}
+
+model UserCharacter {
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+  character   Character @relation(fields: [characterId], references: [id])
+  characterId Int
+  obtainedAt  DateTime  @default(now())
+
+  @@id([userId, characterId])
 }

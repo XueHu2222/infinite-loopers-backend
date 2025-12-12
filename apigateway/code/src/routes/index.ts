@@ -19,11 +19,26 @@ function fixRequestBody(proxyReq: any, req: Request, res: Response) {
 }
 
 // Auth Proxy
-const authProxy: RequestHandler = createProxyMiddleware({
+const authProxy = createProxyMiddleware({
   target: 'http://localhost:3012/auth',
   changeOrigin: true,
   on: { proxyReq: fixRequestBody },
 });
+
+// Users Proxy
+const usersProxy = createProxyMiddleware({
+  target: 'http://localhost:3012/users',
+  changeOrigin: true,
+  on: { proxyReq: fixRequestBody },
+});
+
+// Users Proxy
+const charactersProxy = createProxyMiddleware({
+  target: 'http://localhost:3012/characters',
+  changeOrigin: true,
+  on: { proxyReq: fixRequestBody },
+});
+
 
 // Task Proxy
 const taskProxy: RequestHandler = createProxyMiddleware({
@@ -34,6 +49,8 @@ const taskProxy: RequestHandler = createProxyMiddleware({
 
 // Use Proxies
 router.use('/auth', authProxy);
+router.use('/users', usersProxy);
+router.use('/characters', charactersProxy);
 router.use('/tasks', taskProxy);
 
 export default router;
