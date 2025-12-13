@@ -185,3 +185,43 @@ export async function buyCharacter(req: Request, res: Response): Promise<Respons
   }
 }
 
+export async function equipCharacter(req: Request, res: Response): Promise<Response> {
+  const userId = Number(req.params.id);
+  const characterId = Number(req.body.characterId);
+
+  if (isNaN(userId) || isNaN(characterId)) {
+    return res.status(400).json({ message: "Invalid userId or characterId" });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        currentCharacterId: characterId
+      }
+    });
+
+    return res.status(200).json({
+      message: "Character equipped successfully",
+      currentCharacterId: characterId
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: {
+        message: "Failed to equip character",
+        code: "SERVER_ERROR",
+        url: req.url
+      }
+    });
+  }
+}
+
+
