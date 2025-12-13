@@ -1,5 +1,5 @@
 import Express, { Router } from 'express';
-import { buyCharacter, getAllUserCharacters, getCurrentCharacter, getUser } from '../controllers/characterController.ts';
+import { buyCharacter, getAllUserCharacters, getCurrentCharacter, getUser } from '../controllers/userCharacterController.ts';
 const router: Router = Express.Router();
 
 router.get('/:id', getUser);

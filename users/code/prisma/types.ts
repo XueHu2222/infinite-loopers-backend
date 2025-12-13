@@ -1,20 +1,12 @@
 interface User {
   id?: number;
   createdAt?: Date;
-  username: string;
   email: string;
+  username: string;
   password: string;
   coins: number;
   currentCharacterId: number;
   ownedCharacters?: UserCharacter[];
-}
-
-interface Character {
-  id?: number;
-  name: string;
-  imageUrl: string;
-  price: number;
-  ownedBy?: UserCharacter[];
 }
 
 interface UserCharacter {
@@ -22,7 +14,6 @@ interface UserCharacter {
   characterId: number;
   obtainedAt?: Date;
   user?: User;
-  character?: Character;
 }
 
-export { User, Character, UserCharacter };
+export { User, UserCharacter };

@@ -2,14 +2,13 @@ import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
 
-import AuthRouter from './routes/authRoutes.ts';
-import UserRouter from './routes/userRoutes.ts';
+import ShopRouter from './routes/shopRoutes.ts';
 import { errorHandler } from './middleware/errors/errorHandler.ts';
 import helmet from 'helmet';
 import cors from 'cors';
 
 const app: Application = Express();
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3014;
 
 // CORS configuration - allow API Gateway or frontend
 app.use(cors({
@@ -29,8 +28,7 @@ app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
 // Main routes
-app.use('/auth', AuthRouter);
-app.use('/users',UserRouter);
+app.use('/shop', ShopRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {

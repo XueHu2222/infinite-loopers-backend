@@ -32,9 +32,9 @@ const usersProxy = createProxyMiddleware({
   on: { proxyReq: fixRequestBody },
 });
 
-// Users Proxy
-const charactersProxy = createProxyMiddleware({
-  target: 'http://localhost:3012/characters',
+// Shop Proxy
+const shopProxy = createProxyMiddleware({
+  target: 'http://localhost:3014/shop',
   changeOrigin: true,
   on: { proxyReq: fixRequestBody },
 });
@@ -50,7 +50,7 @@ const taskProxy: RequestHandler = createProxyMiddleware({
 // Use Proxies
 router.use('/auth', authProxy);
 router.use('/users', usersProxy);
-router.use('/characters', charactersProxy);
+router.use('/shop', shopProxy);
 router.use('/tasks', taskProxy);
 
 export default router;
