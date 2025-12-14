@@ -26,7 +26,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
     // Hash password and create user
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword }
+      data: { username, email, password: hashedPassword, ownedCharacters: {create: [{ characterId: 1 }]}}
     });
 
     res.status(201).json({
@@ -64,6 +64,13 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       return;
     }
 
+    res.cookie("userId", user.id, {
+      httpOnly: false,
+      secure: false,
+      path: "/",
+      sameSite: "lax"
+    });
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -73,3 +80,8 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     next(err);
   }
 }
+
+export async function logout (req: Request, res: Response) {
+    res.clearCookie('userId', { path: '/' });
+    res.status(200).json({ success: true, message: 'Logged out' });
+};
