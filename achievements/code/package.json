@@ -6,6 +6,9 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "nodemon --watch src --ext ts --exec tsx src/start.ts",
