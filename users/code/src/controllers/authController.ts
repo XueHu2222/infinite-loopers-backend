@@ -85,23 +85,3 @@ export async function logout (req: Request, res: Response) {
     res.clearCookie('userId', { path: '/' });
     res.status(200).json({ success: true, message: 'Logged out' });
 };
-
-export async function getUserIdByEmail(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email = req.query.email as string;
-
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email query parameter is required' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.status(200).json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
-  } catch (err) {
-    next(err);
-  }
-}

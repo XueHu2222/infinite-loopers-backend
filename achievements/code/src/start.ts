@@ -2,13 +2,13 @@ import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
 
-import IndexRouter from './routes/index.ts';
-import { errorHandler } from './middleware/errors/errorHandler.ts';
+import IndexRouter from './routes/index.js';
+import { errorHandler } from './middleware/errors/errorHandler.js';
 import helmet from 'helmet';
 import cors from 'cors';
 
 const app: Application = Express();
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3010;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3020;
 
 // CORS configuration
 app.use(cors({
@@ -23,12 +23,18 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', service: 'achievements' });
+});
+
+
 // Body parsers
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
 // Main routes
-app.use('/tasks', IndexRouter);
+app.use('/achievements', IndexRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -40,7 +46,7 @@ app.use(errorHandler);
 
 // Start server
 app.listen(port, () => {
-  console.log(`🍿 Task service running → PORT ${port}`);
+  console.log(`🏆 Achievements service running → PORT ${port}`);
 });
 
 // Optional: handle unhandled promise rejections and uncaught exceptions

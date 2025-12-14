@@ -22,4 +22,5 @@ model Task {
   priority  String   @default("Medium")
   category  String?
   createdAt DateTime @default(now())
+  completedAt DateTime?
 }
