@@ -7,5 +7,6 @@ CREATE TABLE "Task" (
     "status" TEXT NOT NULL DEFAULT 'Not Started',
     "priority" TEXT NOT NULL DEFAULT 'Medium',
     "category" TEXT,
-    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "completedAt" DATETIME
 );
