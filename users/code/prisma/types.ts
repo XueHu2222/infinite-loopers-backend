@@ -7,6 +7,7 @@ interface User {
   coins: number;
   currentCharacterId: number;
   ownedCharacters?: UserCharacter[];
+  ownedDecorations?: UserDecoration[];
 }
 
 interface UserCharacter {
@@ -16,4 +17,12 @@ interface UserCharacter {
   user?: User;
 }
 
-export { User, UserCharacter };
+interface UserDecoration {
+  userId: number;
+  decorationId: number;
+  obtainedAt?: Date;
+  user?: User;
+  placed: Boolean;
+}
+
+export { User, UserCharacter, UserDecoration };

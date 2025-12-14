@@ -19,6 +19,17 @@ CREATE TABLE "UserCharacter" (
     CONSTRAINT "UserCharacter_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "UserDecoration" (
+    "userId" INTEGER NOT NULL,
+    "decorationId" INTEGER NOT NULL,
+    "obtainedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "placed" BOOLEAN NOT NULL DEFAULT false,
+
+    PRIMARY KEY ("userId", "decorationId"),
+    CONSTRAINT "UserDecoration_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 

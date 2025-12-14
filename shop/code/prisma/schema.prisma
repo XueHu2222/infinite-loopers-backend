@@ -13,3 +13,11 @@ model Character {
   imageUrl String
   price    Int     @default(0)
 }
+
+model Decoration {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+  imageUrl String
+  price    Int
+  position  Json
+}

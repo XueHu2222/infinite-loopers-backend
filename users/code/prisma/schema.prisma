@@ -17,6 +17,7 @@ model User {
   currentCharacterId  Int             @default(1)
 
   ownedCharacters     UserCharacter[]
+  ownedDecorations    UserDecoration[]
 }
 
 model UserCharacter {
@@ -26,4 +27,14 @@ model UserCharacter {
   obtainedAt  DateTime @default(now())
 
   @@id([userId, characterId])
+}
+
+model UserDecoration {
+  user         User @relation(fields: [userId], references: [id])
+  userId       Int
+  decorationId Int
+  obtainedAt   DateTime @default(now())
+  placed       Boolean  @default(false)
+
+  @@id([userId, decorationId])
 }
