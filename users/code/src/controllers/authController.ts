@@ -73,24 +73,3 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
     next(err);
   }
 }
-
-
-export async function getUserIdByEmail(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email = req.query.email as string;
-
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email query parameter is required' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.status(200).json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
-  } catch (err) {
-    next(err);
-  }
-}
