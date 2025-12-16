@@ -14,13 +14,16 @@ datasource db {
 }
 
 model Task {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  title     String
-  endDate   DateTime?
-  status    String   @default("Not Started")
-  priority  String   @default("Medium")
-  category  String?
-  createdAt DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  title      String
+  endDate    DateTime?
+  status     String    @default("Not Started")
+  priority   String    @default("Medium")
+  category   String?
+  notes      String?
+  suggestions String?
+  subtasks   Json?
+  createdAt  DateTime  @default(now())
   completedAt DateTime?
 }
