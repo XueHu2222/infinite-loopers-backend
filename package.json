@@ -1,0 +1,19 @@
+{
+  "name": "infinite-loopers-backend",
+  "version": "1.0.0",
+  "description": "Task management system with achievements - microservices backend",
+  "scripts": {
+    "install:all": "npm install && cd apigateway/code && npm install && cd ../.. && cd users/code && npm install && cd ../.. && cd tasks/code && npm install && cd ../.. && cd achievements/code && npm install && cd ../.. && cd shop/code && npm install && cd ../..",
+    "setup:db": "cd users/code && npx prisma migrate dev && cd ../.. && cd tasks/code && npx prisma migrate dev && cd ../.. && cd achievements/code && npx prisma migrate dev && cd ../.. && cd shop/code && npx prisma migrate dev && cd ../..",
+    "setup": "npm run install:all && npm run setup:db",
+    "dev": "concurrently --names \"GATEWAY,USERS,TASKS,ACHIEVEMENTS,SHOP\" --prefix-colors \"cyan,blue,green,yellow,magenta\" \"cd apigateway/code && npm run dev\" \"cd users/code && npm run dev\" \"cd tasks/code && npm run dev\" \"cd achievements/code && npm run dev\" \"cd shop/code && npm run dev\"",
+    "dev:gateway": "cd apigateway/code && npm run dev",
+    "dev:users": "cd users/code && npm run dev",
+    "dev:tasks": "cd tasks/code && npm run dev",
+    "dev:achievements": "cd achievements/code && npm run dev",
+    "dev:shop": "cd shop/code && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
