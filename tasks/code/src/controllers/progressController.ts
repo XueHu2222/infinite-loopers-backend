@@ -19,32 +19,42 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
 
     // 2. Calculate Basic Stats
     const totalTasks = tasks.length;
+    // Fix: use (t: any) to stop red lines
     const completedTasks = tasks.filter((t: any) => t.status === 'Completed').length;
 
-    // Avoid division by zero
     const completionRate = totalTasks > 0
       ? Math.round((completedTasks / totalTasks) * 100)
       : 0;
 
     const avgPerDay = Math.round(completedTasks / 7);
 
-    // 3. Calculate Weekly Bar Chart (Last 7 Days)
+    // 3. Calculate Weekly Bar Chart (STATIC MONDAY - SUNDAY)
     const weeklyData = [];
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    // Find the current Monday
     const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 (Sun) to 6 (Sat)
+    // If today is Sunday (0), Monday was 6 days ago. Otherwise, Monday was (day - 1) days ago.
+    const diffToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(today.getDate() - i);
-      const dayName = days[d.getDay()];
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - diffToMonday);
+    monday.setHours(0, 0, 0, 0); // Reset time to start of day
 
-    // Filter tasks created on this specific day
-      // TODO: In the future, we should add a 'completedAt' field to the Database.
-      // Currently, this chart shows when tasks were CREATED, not necessarily when finished.
+   // Loop from 0 (Monday) to 6 (Sunday)
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      const dayName = days[i];
+
       const tasksOnDay = tasks.filter((t: any) => {
-        const tDate = new Date(t.createdAt);
-        return tDate.getDate() === d.getDate() &&
-               tDate.getMonth() === d.getMonth();
+        // FIX: Use endDate (Planned Date) if it exists, otherwise use createdAt
+        const dateToCheck = t.endDate ? new Date(t.endDate) : new Date(t.createdAt);
+
+        return dateToCheck.getDate() === d.getDate() &&
+               dateToCheck.getMonth() === d.getMonth() &&
+               dateToCheck.getFullYear() === d.getFullYear();
       });
 
       weeklyData.push({
@@ -54,7 +64,7 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
       });
     }
 
-    // 4. Calculate Categories
+    // 4. Calculate Categories (New List)
     const categoryMap = new Map<string, number>();
 
     tasks.filter((t: any) => t.status === 'Completed').forEach((t: any) => {
@@ -62,12 +72,16 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
       categoryMap.set(cat, (categoryMap.get(cat) || 0) + 1);
     });
 
+    // NEW Category Colors
     const categoryColors: Record<string, string> = {
-      'Chores': '#3E2612',
-      'Work': '#4F3117',
-      'Reading': '#5C4B35',
-      'Health': '#8C7B65',
-      'School': '#A89F91'
+      'Work': '#4F3117',      // Dark Brown
+      'Study': '#A89F91',     // Beige/Grey
+      'Chores': '#3E2612',    // Very Dark Brown
+      'Wellness': '#8C7B65',  // Light Brown
+      'Reading': '#5C4B35',   // Medium Brown
+      'Hobbies': '#6D5C45',   // Clay
+      'Social': '#7A6B5D',    // Taupe
+      'Events': '#8F8170'     // Stone
     };
 
     const categories = Array.from(categoryMap, ([name, value]) => ({
@@ -76,7 +90,7 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
       color: categoryColors[name] || '#5C4B35'
     }));
 
-   // 5. Calculate Insights
+   // 5. Calculate Insights (With Tie Logic)
     let bestDayObj = weeklyData[0];
     if (weeklyData.length > 0) {
         bestDayObj = weeklyData.reduce((prev, curr) =>
@@ -84,11 +98,23 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
         );
     }
 
-    let topCategoryObj = { name: 'No quests completed', value: 0 };
+  // --- TIE LOGIC ---
+    let topCategoryName = "No quests completed";
+    let topCategoryValue = 0;
+
     if (categories.length > 0) {
-        topCategoryObj = categories.reduce((prev, curr) =>
-            (prev.value > curr.value) ? prev : curr
-        );
+        categories.sort((a, b) => b.value - a.value);
+        const winner = categories[0];
+        topCategoryValue = winner.value;
+
+        const ties = categories.filter(c => c.value === winner.value);
+
+        if (ties.length > 1) {
+            const names = ties.map(c => c.name);
+            topCategoryName = names.join(' & ');
+        } else {
+            topCategoryName = winner.name;
+        }
     }
 
     // --- INFINITE STREAK LOGIC ---
@@ -124,15 +150,14 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
         }
     }
 
-    // Insight Strings
     const finalBestDay = bestDayObj.completed > 0 ? bestDayObj.day : "No activity yet";
     const finalBestDayCount = bestDayObj.completed;
 
     const insights = {
       bestDay: finalBestDay,
       bestDayCount: finalBestDayCount,
-      topCategory: topCategoryObj.name,
-      topCategoryCount: topCategoryObj.value,
+      topCategory: topCategoryName, // Uses the new tie logic string
+      topCategoryCount: topCategoryValue,
       streak: streak
     };
 
@@ -143,7 +168,6 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
             totalCompleted: completedTasks,
             completionRate,
             avgPerDay,
-            // TODO: Fetch real coins/level from Users Service when Achievements are ready
             coins: 0,
             level: 1,
             currentXp: 0,
