@@ -23,7 +23,7 @@ export async function addTask(req: Request, res: Response, next: NextFunction) {
     const { userId, title, endDate, category, priority } = req.body;
 
     if (!title) {
-      return res.status(400).json({ success: false, message: "Task title is required" });
+      return res.status(400).json({ success: false, message: 'Task title is required' });
     }
 
     const createdTask = await prisma.task.create({
@@ -31,17 +31,71 @@ export async function addTask(req: Request, res: Response, next: NextFunction) {
         userId,
         title,
         endDate: endDate ? new Date(endDate) : null,
-        status: "Not Started",
-        priority: priority || "Medium",
+        status: 'Not Started',
+        priority: priority || 'Medium',
         category: category || null,
       },
     });
 
-    res.status(201).json({ success: true, message: "Task added successfully", task: createdTask });
+    res.status(201).json({ success: true, message: 'Task added successfully', task: createdTask });
   } catch (err) {
     next(err);
   }
 }
+
+/**
+ * Update an existing task's details (notes, suggestions, subtasks, status, etc.).
+ * This powers the quest log detail modal, including subtask persistence.
+ */
+export async function updateTask(req: Request, res: Response, next: NextFunction) {
+  try {
+    const taskId = parseInt(req.params.taskId);
+
+    const existingTask = await prisma.task.findUnique({
+      where: { id: taskId },
+    });
+
+    if (!existingTask) {
+      return res.status(404).json({ success: false, message: 'Task not found' });
+    }
+
+    const {
+      title,
+      endDate,
+      category,
+      priority,
+      status,
+      notes,
+      suggestions,
+      subtasks,
+    } = req.body;
+
+    const data: any = {};
+
+    if (title !== undefined) data.title = title;
+    if (endDate !== undefined) data.endDate = endDate ? new Date(endDate) : null;
+    if (category !== undefined) data.category = category;
+    if (priority !== undefined) data.priority = priority;
+    if (status !== undefined) data.status = status;
+    if (notes !== undefined) data.notes = notes;
+    if (suggestions !== undefined) data.suggestions = suggestions;
+    if (subtasks !== undefined) data.subtasks = subtasks;
+
+    const updatedTask = await prisma.task.update({
+      where: { id: taskId },
+      data,
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Task updated successfully',
+      task: updatedTask,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 // Complete a task and check for achievements
 export async function completeTask(req: Request, res: Response, next: NextFunction) {
   try {
