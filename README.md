@@ -20,4 +20,4 @@ npm run dev:shop     # Start shop only
 - Users: 3012
 - Tasks: 3010
 - Achievements: 3020
-- Shop: 3030
+- Shop: 3014
