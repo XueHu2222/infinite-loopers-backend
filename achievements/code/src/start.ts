@@ -2,16 +2,15 @@ import Express, { Application, Request, Response, NextFunction } from 'express';
 import * as Dotenv from 'dotenv';
 Dotenv.config({ path: '.env' });
 
-import AuthRouter from './routes/authRoutes.ts';
-import UserRouter from './routes/userRoutes.ts';
-import { errorHandler } from './middleware/errors/errorHandler.ts';
+import IndexRouter from './routes/index.js';
+import { errorHandler } from './middleware/errors/errorHandler.js';
 import helmet from 'helmet';
 import cors from 'cors';
 
 const app: Application = Express();
-const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;
+const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3020;
 
-// CORS configuration - allow API Gateway or frontend
+// CORS configuration
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true,
@@ -24,25 +23,30 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'ok', service: 'achievements' });
+});
+
+
 // Body parsers
 app.use(Express.json());
 app.use(Express.urlencoded({ extended: true }));
 
 // Main routes
-app.use('/auth', AuthRouter);
-app.use('/users',UserRouter);
+app.use('/achievements', IndexRouter);
 
 // 404 handler
 app.use((req: Request, res: Response, next: NextFunction) => {
   next(new Error('Resource not found', { cause: 404 }));
 });
 
-// Error handler (last)
+// Error handler
 app.use(errorHandler);
 
 // Start server
 app.listen(port, () => {
-  console.log(`🍿 Express running → PORT ${port}`);
+  console.log(`🏆 Achievements service running → PORT ${port}`);
 });
 
 // Optional: handle unhandled promise rejections and uncaught exceptions

@@ -26,7 +26,7 @@ export async function register(req: Request, res: Response, next: NextFunction):
     // Hash password and create user
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword }
+      data: { username, email, password: hashedPassword, ownedCharacters: {create: [{ characterId: 1 }]}}
     });
 
     res.status(201).json({
@@ -64,6 +64,13 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       return;
     }
 
+    res.cookie("userId", user.id, {
+      httpOnly: false,
+      secure: false,
+      path: "/",
+      sameSite: "lax"
+    });
+
     res.status(200).json({
       success: true,
       message: 'Login successful',
@@ -74,23 +81,7 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
   }
 }
 
-
-export async function getUserIdByEmail(req: Request, res: Response, next: NextFunction) {
-  try {
-    const email = req.query.email as string;
-
-    if (!email) {
-      return res.status(400).json({ success: false, message: 'Email query parameter is required' });
-    }
-
-    const user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      return res.status(404).json({ success: false, message: 'User not found' });
-    }
-
-    res.status(200).json({ success: true, user: { id: user.id, username: user.username, email: user.email } });
-  } catch (err) {
-    next(err);
-  }
-}
+export async function logout (req: Request, res: Response) {
+    res.clearCookie('userId', { path: '/' });
+    res.status(200).json({ success: true, message: 'Logged out' });
+};

@@ -1,0 +1,41 @@
+// Achievements Service Schema
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Achievement {
+  id               Int                @id @default(autoincrement())
+  key              String             @unique
+  name             String
+  description      String
+  icon             String
+  points           Int                @default(0)
+  createdAt        DateTime           @default(now())
+  
+  userAchievements UserAchievement[]  // One achievement → many user unlocks
+}
+
+model UserAchievement {
+  id            Int         @id @default(autoincrement())
+  userId        Int
+  achievementId Int
+  unlockedAt    DateTime    @default(now())
+  progress      String?
+  
+  achievement   Achievement @relation(fields: [achievementId], references: [id])  // Points to Achievement
+  
+  @@unique([userId, achievementId])
+}
+
+model UserStats {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  totalXP           Int      @default(0)
+  achievementsCount Int      @default(0)
+  lastUpdated       DateTime @default(now())
+}

@@ -193,4 +193,4 @@ build/
 *.drawio.dtmp
 
 # PRISMA
-prisma/prisma/*.db
+**/prisma/*.db
