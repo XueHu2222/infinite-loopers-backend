@@ -1,7 +1,8 @@
 import Express, { Router } from 'express';
-import { addTask, getTasks, completeTask, updateTask } from '../controllers/taskController.ts';
+import { addTask, getTasks, completeTask, updateTask, deleteTask } from '../controllers/taskController.ts';
 import { getProgress } from '../controllers/progressController.ts';
 import Cors from 'cors';
+
 
 const router: Router = Express.Router();
 
@@ -14,5 +15,6 @@ router.post('/:userId', addTask);
 router.put('/:taskId', updateTask);
 
 router.put('/:taskId/complete', completeTask);
+router.delete('/:taskId', deleteTask);
 
 export default router;
