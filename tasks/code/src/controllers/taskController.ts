@@ -47,7 +47,7 @@ export async function addTask(req: Request, res: Response, next: NextFunction) {
  * Update an existing task's details (notes, suggestions, subtasks, status, etc.).
  * This powers the quest log detail modal, including subtask persistence.
  */
-export async function updateTask(req: Request, res: Response, next: NextFunction) {
+export async function updateTask(req: Request, res: Response) {
   try {
     const taskId = parseInt(req.params.taskId);
 
@@ -68,6 +68,8 @@ export async function updateTask(req: Request, res: Response, next: NextFunction
       notes,
       suggestions,
       subtasks,
+      duration,
+      timeSpent,
     } = req.body;
 
     const data: any = {};
@@ -80,19 +82,27 @@ export async function updateTask(req: Request, res: Response, next: NextFunction
     if (notes !== undefined) data.notes = notes;
     if (suggestions !== undefined) data.suggestions = suggestions;
     if (subtasks !== undefined) data.subtasks = subtasks;
+    if (duration !== undefined) data.duration = duration;
+    if (timeSpent !== undefined) data.timeSpent = timeSpent;
 
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: 'Task updated successfully',
       task: updatedTask,
     });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    return res.status(500).send({
+      error: {
+        message: 'Failed to update task',
+        code: 'SERVER_ERROR',
+        url: req.url
+      }
+    });
   }
 }
 
