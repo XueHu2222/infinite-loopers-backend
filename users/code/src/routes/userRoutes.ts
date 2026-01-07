@@ -1,9 +1,11 @@
 import Express, { Router } from 'express';
-import { buyCharacter, buyDecoration, equipCharacter, getAllUserCharacters, getAllUserDecorations, getCurrentCharacter, getUser } from '../controllers/userCharacterController.ts';
+import { buyCharacter, buyDecoration, equipCharacter, getAllUserCharacters, getAllUserDecorations, getCurrentCharacter, getUser, addCoins } from '../controllers/userCharacterController.ts';
 import { getPlacedDecorations, placeDecoration } from '../controllers/userDecorationController.ts';
 const router: Router = Express.Router();
 
 router.get('/:id', getUser);
+
+router.put('/:id/add-coins', addCoins);
 
 router.get('/:id/characters', getAllUserCharacters);
 router.post('/:id/characters', buyCharacter);
