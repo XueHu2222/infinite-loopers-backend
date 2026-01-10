@@ -9,9 +9,12 @@ CREATE TABLE "new_User" (
     "password" TEXT NOT NULL,
     "coins" INTEGER NOT NULL DEFAULT 10,
     "currentCharacterId" INTEGER NOT NULL DEFAULT 1,
-    "hasFinishedTour" BOOLEAN NOT NULL DEFAULT false
+    "hasFinishedTour" BOOLEAN NOT NULL DEFAULT false,
+    "xp" INTEGER NOT NULL DEFAULT 0,
+    "level" INTEGER NOT NULL DEFAULT 1,
+    "maxXp" INTEGER NOT NULL DEFAULT 100
 );
-INSERT INTO "new_User" ("coins", "createdAt", "currentCharacterId", "email", "id", "password", "username") SELECT "coins", "createdAt", "currentCharacterId", "email", "id", "password", "username" FROM "User";
+INSERT INTO "new_User" ("coins", "createdAt", "currentCharacterId", "email", "hasFinishedTour", "id", "password", "username") SELECT "coins", "createdAt", "currentCharacterId", "email", "hasFinishedTour", "id", "password", "username" FROM "User";
 DROP TABLE "User";
 ALTER TABLE "new_User" RENAME TO "User";
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");

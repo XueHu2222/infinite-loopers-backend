@@ -1,5 +1,5 @@
 import Express, { Router } from 'express';
-import { buyCharacter, buyDecoration, equipCharacter, getAllUserCharacters, getAllUserDecorations, getCurrentCharacter, getUser, addCoins } from '../controllers/userCharacterController.ts';
+import { buyCharacter, buyDecoration, equipCharacter, getAllUserCharacters, getAllUserDecorations, getCurrentCharacter, getUser, addRewards } from '../controllers/userCharacterController.ts';
 import { getPlacedDecorations, placeDecoration } from '../controllers/userDecorationController.ts';
 import { getTourStatus, finishTour } from '../controllers/userTourController.ts';
 const router: Router = Express.Router();
@@ -9,7 +9,7 @@ router.patch('/finish-tour', finishTour);
 
 router.get('/:id', getUser);
 
-router.put('/:id/add-coins', addCoins);
+router.put('/:id/add-rewards', addRewards);
 
 router.get('/:id/characters', getAllUserCharacters);
 router.post('/:id/characters', buyCharacter);
