@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 const prisma: PrismaClient = new PrismaClient();
 
@@ -335,4 +335,25 @@ export async function equipCharacter(req: Request, res: Response): Promise<Respo
   }
 }
 
+export const addCoins = async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params;
+    const { amount } = req.body;
 
+    try {
+        const updatedUser = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: {
+                coins: {
+                    increment: amount
+                }
+            }
+        });
+
+        res.json({
+            success: true,
+            newTotal: updatedUser.coins
+        });
+    } catch (error) {
+        next(error);
+    }
+};
