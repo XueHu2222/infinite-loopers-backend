@@ -15,6 +15,7 @@ model User {
   password            String
   coins               Int             @default(100)
   currentCharacterId  Int             @default(1)
+  hasFinishedTour    Boolean          @default(false)
 
   ownedCharacters     UserCharacter[]
   ownedDecorations    UserDecoration[]
