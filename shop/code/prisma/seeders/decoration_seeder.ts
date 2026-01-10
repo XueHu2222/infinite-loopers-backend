@@ -5,31 +5,31 @@ const prisma: PrismaClient = new PrismaClient();
     {
       name: 'Serpentleaf Plant',
       imageUrl: '/decorations/serpentleaf-plant.png',
-      price: 1,
+      price: 15,
       position: { bottom: '33%', left: '26%', width: '12%' }
     },
     {
       name: 'Enchanted Painting',
       imageUrl: '/decorations/enchanted-painting.png',
-      price: 1,
+      price: 50,
       position: { bottom: '50%', left: '30%', width: '12%' }
     },
     {
       name: 'Magic Carpet',
       imageUrl: '/decorations/magic-carpet.png',
-      price: 2,
+      price: 250,
       position: { bottom: '15%', left: '50%', width: '40%', translateX: '-50%' }
     },
     {
       name: 'Arcane Shelf',
       imageUrl: '/decorations/arcane-shelf.png',
-      price: 3,
+      price: 450,
       position: { top: '50%', right: '20%', width: '20%' }
     },
     {
       name: 'Study Table',
       imageUrl: '/decorations/study-table.png',
-      price: 3,
+      price: 700,
       position: { top: '36%', left: '25%', width: '40%' }
     }
   ];

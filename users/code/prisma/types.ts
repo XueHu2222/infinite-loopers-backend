@@ -8,6 +8,10 @@ interface User {
   currentCharacterId: number;
   ownedCharacters?: UserCharacter[];
   ownedDecorations?: UserDecoration[];
+  hasFinishedTour?: boolean;
+  xp: number;
+  level: number;
+  maxXp: number;
 }
 
 interface UserCharacter {
