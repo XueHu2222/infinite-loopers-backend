@@ -5,7 +5,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "username" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "coins" INTEGER NOT NULL DEFAULT 100,
+    "coins" INTEGER NOT NULL DEFAULT 10,
     "currentCharacterId" INTEGER NOT NULL DEFAULT 1
 );
 

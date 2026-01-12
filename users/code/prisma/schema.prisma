@@ -13,8 +13,12 @@ model User {
   email               String          @unique
   username            String          @unique
   password            String
-  coins               Int             @default(100)
+  coins               Int             @default(10)
   currentCharacterId  Int             @default(1)
+  hasFinishedTour    Boolean          @default(false)
+  xp                  Int             @default(0)
+  level               Int             @default(1)
+  maxXp               Int             @default(100)
 
   ownedCharacters     UserCharacter[]
   ownedDecorations    UserDecoration[]

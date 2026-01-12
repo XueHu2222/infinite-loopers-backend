@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 const prisma: PrismaClient = new PrismaClient();
 
@@ -335,4 +335,59 @@ export async function equipCharacter(req: Request, res: Response): Promise<Respo
   }
 }
 
+export async function addRewards(req: Request, res: Response): Promise<Response> {
+  const { id } = req.params;
+  const { xp = 0, coins = 0 } = req.body;
 
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: parseInt(id) },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    let newXp = user.xp + xp;
+    let level = user.level;
+    let maxXp = user.maxXp;
+
+    while (newXp >= maxXp) {
+      newXp -= maxXp;
+      level += 1;
+      maxXp = calculateNextMaxXp(level);
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: parseInt(id) },
+      data: {
+        xp: newXp,
+        coins: { increment: coins },
+        level: level,
+        maxXp: maxXp
+      },
+    });
+
+    return res.json({
+      success: true,
+      newXP: updatedUser.xp,
+      newCoins: updatedUser.coins,
+      level: updatedUser.level,
+      maxXp: updatedUser.maxXp
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: {
+        message: "Failed to add rewards",
+        code: "SERVER_ERROR",
+        url: req.url
+      }
+    });
+  }
+};
+
+function calculateNextMaxXp(level: number) {
+  const base = 100;
+  const growth = 1.5;
+  return Math.floor(base * Math.pow(growth, level - 1));
+}

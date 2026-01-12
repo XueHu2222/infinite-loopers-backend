@@ -8,8 +8,8 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
     const userId = parseInt(req.params.userId);
 
     if (isNaN(userId)) {
-        res.status(400).json({ success: false, message: 'Invalid user ID' });
-        return;
+      res.status(400).json({ success: false, message: 'Invalid user ID' });
+      return;
     }
 
     // 1. Fetch all tasks for this user
@@ -19,14 +19,13 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
 
     // 2. Calculate Basic Stats
     const totalTasks = tasks.length;
-    // Fix: use (t: any) to stop red lines
     const completedTasks = tasks.filter((t: any) => t.status === 'Completed').length;
+    const daysWithTasks = [...new Set(tasks.map((t: any) => new Date(t.createdAt).toDateString()))].length;
+    const avgPerDay = daysWithTasks > 0 ? Math.round(completedTasks / daysWithTasks) : 0;
 
     const completionRate = totalTasks > 0
       ? Math.round((completedTasks / totalTasks) * 100)
       : 0;
-
-    const avgPerDay = Math.round(completedTasks / 7);
 
     // 3. Calculate Weekly Bar Chart (STATIC MONDAY - SUNDAY)
     const weeklyData = [];
@@ -42,7 +41,7 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
     monday.setDate(today.getDate() - diffToMonday);
     monday.setHours(0, 0, 0, 0); // Reset time to start of day
 
-   // Loop from 0 (Monday) to 6 (Sunday)
+    // Loop from 0 (Monday) to 6 (Sunday)
     for (let i = 0; i < 7; i++) {
       const d = new Date(monday);
       d.setDate(monday.getDate() + i);
@@ -53,8 +52,8 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
         const dateToCheck = t.endDate ? new Date(t.endDate) : new Date(t.createdAt);
 
         return dateToCheck.getDate() === d.getDate() &&
-               dateToCheck.getMonth() === d.getMonth() &&
-               dateToCheck.getFullYear() === d.getFullYear();
+          dateToCheck.getMonth() === d.getMonth() &&
+          dateToCheck.getFullYear() === d.getFullYear();
       });
 
       weeklyData.push({
@@ -90,64 +89,64 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
       color: categoryColors[name] || '#5C4B35'
     }));
 
-   // 5. Calculate Insights (With Tie Logic)
+    // 5. Calculate Insights (With Tie Logic)
     let bestDayObj = weeklyData[0];
     if (weeklyData.length > 0) {
-        bestDayObj = weeklyData.reduce((prev, curr) =>
-            (prev.completed > curr.completed) ? prev : curr, weeklyData[0]
-        );
+      bestDayObj = weeklyData.reduce((prev, curr) =>
+        (prev.completed > curr.completed) ? prev : curr, weeklyData[0]
+      );
     }
 
-  // --- TIE LOGIC ---
+    // --- TIE LOGIC ---
     let topCategoryName = "No quests completed";
     let topCategoryValue = 0;
 
     if (categories.length > 0) {
-        categories.sort((a, b) => b.value - a.value);
-        const winner = categories[0];
-        topCategoryValue = winner.value;
+      categories.sort((a, b) => b.value - a.value);
+      const winner = categories[0];
+      topCategoryValue = winner.value;
 
-        const ties = categories.filter(c => c.value === winner.value);
+      const ties = categories.filter(c => c.value === winner.value);
 
-        if (ties.length > 1) {
-            const names = ties.map(c => c.name);
-            topCategoryName = names.join(' & ');
-        } else {
-            topCategoryName = winner.name;
-        }
+      if (ties.length > 1) {
+        const names = ties.map(c => c.name);
+        topCategoryName = names.join(' & ');
+      } else {
+        topCategoryName = winner.name;
+      }
     }
 
     // --- INFINITE STREAK LOGIC ---
     const allCompletedTasks = await prisma.task.findMany({
-        where: {
-            userId: userId,
-            status: 'Completed'
-        },
-        orderBy: { createdAt: 'desc' },
-        select: { createdAt: true }
+      where: {
+        userId: userId,
+        status: 'Completed'
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true }
     });
 
     const completedDates = new Set(
-        allCompletedTasks.map((t: any) => new Date(t.createdAt).toISOString().split('T')[0])
+      allCompletedTasks.map((t: any) => new Date(t.createdAt).toISOString().split('T')[0])
     );
 
     let streak = 0;
     const checkDate = new Date();
 
     while (true) {
-        const dateString = checkDate.toISOString().split('T')[0];
+      const dateString = checkDate.toISOString().split('T')[0];
 
-        if (completedDates.has(dateString)) {
-            streak++;
-            checkDate.setDate(checkDate.getDate() - 1);
-        } else {
-            const todayStr = new Date().toISOString().split('T')[0];
-            if (dateString === todayStr) {
-                checkDate.setDate(checkDate.getDate() - 1);
-                continue;
-            }
-            break;
+      if (completedDates.has(dateString)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        const todayStr = new Date().toISOString().split('T')[0];
+        if (dateString === todayStr) {
+          checkDate.setDate(checkDate.getDate() - 1);
+          continue;
         }
+        break;
+      }
     }
 
     const finalBestDay = bestDayObj.completed > 0 ? bestDayObj.day : "No activity yet";
@@ -163,19 +162,19 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
 
     // 6. Return response
     res.status(200).json({
-        success: true,
-        stats: {
-            totalCompleted: completedTasks,
-            completionRate,
-            avgPerDay,
-            coins: 0,
-            level: 1,
-            currentXp: 0,
-            maxXp: 100,
-            weeklyData,
-            categories,
-            insights
-        }
+      success: true,
+      stats: {
+        totalCompleted: completedTasks,
+        completionRate,
+        avgPerDay,
+        coins: 0,
+        level: 1,
+        currentXp: 0,
+        maxXp: 100,
+        weeklyData,
+        categories,
+        insights
+      }
     });
 
   } catch (err) {

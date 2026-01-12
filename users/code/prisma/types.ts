@@ -8,6 +8,10 @@ interface User {
   currentCharacterId: number;
   ownedCharacters?: UserCharacter[];
   ownedDecorations?: UserDecoration[];
+  hasFinishedTour?: boolean;
+  xp: number;
+  level: number;
+  maxXp: number;
 }
 
 interface UserCharacter {
@@ -26,3 +30,13 @@ interface UserDecoration {
 }
 
 export { User, UserCharacter, UserDecoration };
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: {
+        id: number;
+      };
+    }
+  }
+}

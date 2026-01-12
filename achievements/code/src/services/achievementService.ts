@@ -191,6 +191,12 @@ export async function unlockAchievement(
       }
     });
 
+    await fetch(`http://localhost:3011/users/${userId}/add-rewards`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ xp: achievement.points})
+    });
+
     await prisma.userStats.upsert({
       where: { userId },
       update: {

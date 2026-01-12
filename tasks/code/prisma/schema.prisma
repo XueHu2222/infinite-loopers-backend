@@ -24,6 +24,8 @@ model Task {
   notes      String?
   suggestions String?
   subtasks   Json?
+  duration    Int?     @default(0)
+  timeSpent   Int?     @default(0)
   createdAt  DateTime  @default(now())
   completedAt DateTime?
 }
