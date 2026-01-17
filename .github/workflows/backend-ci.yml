@@ -22,9 +22,6 @@ jobs:
         
     - name: Install dependencies
       run: npm ci
-      
-    - name: Install service dependencies
-      run: npm run install:all
 
     - name: Run tests
       run: npm test --if-present
