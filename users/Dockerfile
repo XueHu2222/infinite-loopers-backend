@@ -1,2 +1,27 @@
-FROM node:24.7.0
-RUN mkdir -p /usr/src/app
+# Infinite Loopers - Users Service (Simple)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install wget for health checks
+RUN apk add --no-cache wget
+
+# Copy package files and prisma
+COPY code/package*.json ./
+COPY code/prisma ./prisma
+
+# Install dependencies
+RUN npm ci --ignore-scripts
+RUN npx prisma generate
+
+# Copy source code
+COPY code/src ./src
+
+EXPOSE 3012
+ENV NODE_ENV=production
+ENV PORT=3012
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3012/health || exit 1
+
+CMD ["npx", "tsx", "src/start.ts"]

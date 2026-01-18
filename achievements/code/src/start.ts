@@ -23,9 +23,14 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
-// Health check
+// Health check endpoint
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'ok', service: 'achievements' });
+  res.status(200).json({
+    status: 'ok',
+    service: 'achievements',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 

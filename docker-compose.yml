@@ -1,38 +1,151 @@
 services:
-  appointments:
-    container_name: appointments
-    build: ./appointments
-    volumes:
-      - ./appointments/code:/usr/src/app
-    networks:
-      - veterinarian
+  # ================================
+  # PostgreSQL Database
+  # ================================
+  postgres:
+    image: postgres:15-alpine
+    container_name: infinite-loopers-db
+    environment:
+      POSTGRES_USER: infiniteloopers
+      POSTGRES_PASSWORD: infiniteloopers_dev_password
+      POSTGRES_DB: infiniteloopers
     ports:
-      - "3010:3010"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
-  clients:
-    container_name: clients
-    build: ./clients
+      - "5432:5432"
     volumes:
-      - ./clients/code:/usr/src/app
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
-      - veterinarian
+      - infinite-loopers-backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U infiniteloopers"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ================================
+  # Users Service
+  # ================================
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-users
+    environment:
+      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=users
+      PORT: 3012
+      NODE_ENV: development
+      JWT_SECRET: dev-jwt-secret-change-in-production
     ports:
       - "3012:3012"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
-  gateway:
-    container_name: apigateway
-    build: ./apigateway
-    volumes:
-      - ./apigateway/code:/usr/src/app
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
-      - veterinarian
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Tasks Service
+  # ================================
+  tasks:
+    build:
+      context: ./tasks
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-tasks
+    environment:
+      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=tasks
+      PORT: 3010
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+    ports:
+      - "3010:3010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Achievements Service
+  # ================================
+  achievements:
+    build:
+      context: ./achievements
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-achievements
+    environment:
+      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=achievements
+      PORT: 3020
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3020:3020"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Shop Service
+  # ================================
+  shop:
+    build:
+      context: ./shop
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-shop
+    environment:
+      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=shop
+      PORT: 3014
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3014:3014"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # API Gateway
+  # ================================
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-gateway
+    environment:
+      PORT: 3011
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+      TASKS_SERVICE_URL: http://tasks:3010
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+      SHOP_SERVICE_URL: http://shop:3014
     ports:
       - "3011:3011"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
+    depends_on:
+      - users
+      - tasks
+      - achievements
+      - shop
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
 
 networks:
-  veterinarian:
+  infinite-loopers-backend:
     driver: bridge
+
+volumes:
+  postgres_data:

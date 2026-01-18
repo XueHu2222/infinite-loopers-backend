@@ -1,5 +1,5 @@
 # ================================
-# Infinite Loopers - Shop Service
+# Infinite Loopers - Achievements Service
 # ================================
 
 # Build stage
@@ -35,15 +35,15 @@ COPY --from=builder /app/src ./src
 COPY --from=builder /app/package*.json ./
 
 # Expose port
-EXPOSE 3014
+EXPOSE 3020
 
 # Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3014
+ENV PORT=3020
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3014/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3020/health || exit 1
 
 # Start the application
 CMD ["npx", "tsx", "src/start.ts"]
