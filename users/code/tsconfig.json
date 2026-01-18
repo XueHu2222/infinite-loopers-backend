@@ -1,5 +1,5 @@
 {
-    "compilerOptions": {
+  "compilerOptions": {
         "target": "es2022",
         "strict": false,
         "sourceMap": true,
@@ -15,14 +15,17 @@
         "allowImportingTsExtensions": true,
         "emitDeclarationOnly": true,
         "declaration": true,
+        "isolatedModules": true,
+        "esModuleInterop": true,
         // "rootDir": "./src"
     },
-    "include": [
-        "src/**/*",
-        "prisma/seed.ts", "prisma/types.ts",
-    ],
-    "exclude": [
-        "node_modules",
-        "**/*.spec.ts"
-    ]
+  "include": [
+    "src/**/*",
+    "prisma/seed.ts", "prisma/types.ts",
+    "tests/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts"
+  ]
 }
