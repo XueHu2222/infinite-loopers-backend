@@ -32,9 +32,5 @@ jobs:
       with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          notification-summary: |
-            ❌ Build failed: Quest Giver Backend CI
-            Repo: ${{ github.repository }}
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
+          notification-summary: Build failed in the "Quest Giver Backend CI" workflow
           notification-color: dc3545
