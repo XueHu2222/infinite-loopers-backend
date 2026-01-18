@@ -25,4 +25,4 @@ interface UserStats {
   lastUpdated: Date;
 }
  
-export { Achievement, UserAchievement, UserStats}
+export { Achievement, UserAchievement, UserStats};

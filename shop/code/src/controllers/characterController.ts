@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 import { Character } from '../../prisma/types.ts';
 const prisma: PrismaClient = new PrismaClient();
 
@@ -22,7 +23,7 @@ export async function getCharacter(req: Request, res: Response): Promise<Respons
     const character = await prisma.character.findFirst({ where: { id: characterId }});
     return res.status(200).json({
       meta: {
-        title: `Character information`,
+        title: 'Character information',
         url: req.url
       },
       data: character
@@ -44,7 +45,7 @@ export async function getAllCharacters(req: Request, res: Response): Promise<voi
     const charactersResponse: CharactersResponse = {
       meta: {
         count: allCharacters.length,
-        title: `All characters available in the store`,
+        title: 'All characters available in the store',
         url: req.url
       },
       data: allCharacters

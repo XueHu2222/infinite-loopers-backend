@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 const prisma: PrismaClient = new PrismaClient();
 
 interface DecorationsResponse {
@@ -66,7 +67,7 @@ export async function placeDecoration(req: Request, res: Response): Promise<Resp
     });
 
     if (!owned) {
-      return res.status(400).json({ message: "User doesn't own this decoration" });
+      return res.status(400).json({ message: 'User doesn\'t own this decoration' });
     }
 
     await prisma.userDecoration.update({
@@ -114,7 +115,7 @@ export async function buyDecoration(req: Request, res: Response): Promise<Respon
   const decorationId = Number(req.body.decorationId);
 
   if (isNaN(userId) || isNaN(decorationId)) {
-    return res.status(400).json({ message: "Invalid userId or decorationId" });
+    return res.status(400).json({ message: 'Invalid userId or decorationId' });
   }
 
   try {
@@ -124,26 +125,26 @@ export async function buyDecoration(req: Request, res: Response): Promise<Respon
     });
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: 'User not found' });
     }
 
     const alreadyOwned = user.ownedDecorations.some(ud => ud.decorationId === decorationId);
     if (alreadyOwned) {
-      return res.status(400).json({ message: "User already owns this decoration" });
+      return res.status(400).json({ message: 'User already owns this decoration' });
     }
 
     const SHOP_SERVICE_URL = process.env.SHOP_SERVICE_URL || 'http://localhost:3011/shop';
     const decorationRes = await fetch(`${SHOP_SERVICE_URL}/decorations/${decorationId}`);
 
      if (!decorationRes.ok) {
-      return res.status(404).json({ message: "Decoration not found in shop service"});
+      return res.status(404).json({ message: 'Decoration not found in shop service'});
     }
 
     const decorationJson = await decorationRes.json();
     const decoration = decorationJson.data;
 
     if (user.coins < decoration.price) {
-      return res.status(400).json({ message: "You don't have enough coins to purchase this decoration! Complete more quests to earn them!" });
+      return res.status(400).json({ message: 'You don\'t have enough coins to purchase this decoration! Complete more quests to earn them!' });
     }
 
     await prisma.$transaction([
@@ -157,14 +158,14 @@ export async function buyDecoration(req: Request, res: Response): Promise<Respon
     ]);
 
     return res.status(200).json({
-      message: "Decoration purchased successfully!",
+      message: 'Decoration purchased successfully!',
       newCoins: user.coins - decoration.price
     });
   } catch (error) {
     return res.status(500).json({
       error: {
-        message: "Failed to purchase decoration",
-        code: "SERVER_ERROR",
+        message: 'Failed to purchase decoration',
+        code: 'SERVER_ERROR',
         url: req.url
       }
     });

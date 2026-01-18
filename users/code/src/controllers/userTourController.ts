@@ -1,5 +1,6 @@
-import Express, { Router, Request, Response } from 'express';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 const prisma = new PrismaClient();
 
 export async function getTourStatus(
@@ -20,7 +21,7 @@ export async function getTourStatus(
         });
 
         res.json(user);
-        
+
         // return res.json({ hasFinishedTour: false });
 
     } catch (err) {

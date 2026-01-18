@@ -1,43 +1,41 @@
-import fs from 'fs';
-import path from 'path';
+import tsPlugin from "@typescript-eslint/eslint-plugin";
+import tsParser from "@typescript-eslint/parser"; 
+import importPlugin from "eslint-plugin-import";
 
 export default [
   {
-    root: true,
-    ignores: ['node_modules', 'dist'],
+    files: ["**/*.ts", "**/*.js"],
+    ignores: ["node_modules/**", "dist/**"],
+
     languageOptions: {
-      parser: '@typescript-eslint/parser',
+      parser: tsParser,
       parserOptions: {
-        ecmaVersion: 'latest',
-        sourceType: 'module',
-      },
-      globals: {
-        NodeJS: 'readonly',
-      },
+        ecmaVersion: 2024,
+        sourceType: "module",
+        project: [
+          "apigateway/code/tsconfig.json",
+          "users/code/tsconfig.json",
+          "tasks/code/tsconfig.json",
+          "achievements/code/tsconfig.json",
+          "shop/code/tsconfig.json"
+        ]
+      }
     },
+
     plugins: {
-      '@typescript-eslint': require('@typescript-eslint/eslint-plugin'),
-      import: require('eslint-plugin-import'),
+      "@typescript-eslint": tsPlugin,
+      import: importPlugin
     },
+
     rules: {
-      semi: ['error', 'always'],
-      quotes: ['error', 'single'],
-      'no-unused-vars': 'warn',
-      'import/no-unresolved': 'error',
-      '@typescript-eslint/no-explicit-any': 'warn',
-    },
-    overrides: [
-      {
-        files: ['*.ts', '*.tsx'],
-        rules: {
-          '@typescript-eslint/explicit-function-return-type': 'off',
-        },
-      },
-      {
-        files: ['*.js'],
-        rules: {
-        },
-      },
-    ],
-  },
+      ...tsPlugin.configs.recommended.rules,
+
+      semi: ["error", "always"],
+      quotes: ["error", "single"],
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": ["warn"],
+      "@typescript-eslint/explicit-function-return-type": "off",
+      "import/order": ["error", { alphabetize: { order: "asc" } }]
+    }
+  }
 ];

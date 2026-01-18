@@ -1,11 +1,11 @@
-import Express, { Application, Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import * as Dotenv from 'dotenv';
+import Express, { Application, Request, Response, NextFunction } from 'express';
 Dotenv.config({ path: '.env' });
 
-import IndexRouter from './routes/index.js';
-import { errorHandler } from './middleware/errors/errorHandler.js';
 import helmet from 'helmet';
-import cors from 'cors';
+import { errorHandler } from './middleware/errors/errorHandler.js';
+import IndexRouter from './routes/index.js';
 
 const app: Application = Express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3020;

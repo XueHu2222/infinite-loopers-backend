@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-namespace */
 interface User {
   id?: number;
   createdAt?: Date;
@@ -26,10 +27,10 @@ interface UserDecoration {
   decorationId: number;
   obtainedAt?: Date;
   user?: User;
-  placed: Boolean;
+  placed: boolean;
 }
 
-export { User, UserCharacter, UserDecoration };
+export type { User, UserCharacter, UserDecoration };
 
 declare global {
   namespace Express {
