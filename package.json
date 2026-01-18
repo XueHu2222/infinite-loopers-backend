@@ -19,7 +19,13 @@
     "prisma:generate:tasks": "cd tasks/code && npx prisma generate",
     "prisma:generate:achievements": "cd achievements/code && npx prisma generate",
     "prisma:generate:shop": "cd shop/code && npx prisma generate",
-    "prisma:generate:all": "npm run prisma:generate:users && npm run prisma:generate:tasks && npm run prisma:generate:achievements && npm run prisma:generate:shop"
+    "prisma:generate:all": "npm run prisma:generate:users && npm run prisma:generate:tasks && npm run prisma:generate:achievements && npm run prisma:generate:shop",
+    "lint:gateway": "eslint 'apigateway/code/**/*.ts'",
+    "lint:users": "eslint 'users/code/**/*.ts'",
+    "lint:tasks": "eslint 'tasks/code/**/*.ts'",
+    "lint:achievements": "eslint 'achievements/code/**/*.ts'",
+    "lint:shop": "eslint 'shop/code/**/*.ts'",
+    "lint:all": "npm run lint:gateway && npm run lint:users && npm run lint:tasks && npm run lint:achievements && npm run lint:shop"
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
