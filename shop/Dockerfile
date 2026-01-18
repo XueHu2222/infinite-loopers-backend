@@ -11,7 +11,7 @@ COPY code/package*.json ./
 COPY code/prisma ./prisma
 
 # Install dependencies
-RUN npm ci --ignore-scripts
+RUN npm ci
 RUN npx prisma generate
 
 # Copy source code
