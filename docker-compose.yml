@@ -1,28 +1,5 @@
 services:
   # ================================
-  # PostgreSQL Database
-  # ================================
-  postgres:
-    image: postgres:15-alpine
-    container_name: infinite-loopers-db
-    environment:
-      POSTGRES_USER: infiniteloopers
-      POSTGRES_PASSWORD: infiniteloopers_dev_password
-      POSTGRES_DB: infiniteloopers
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-    networks:
-      - infinite-loopers-backend
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U infiniteloopers"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # ================================
   # Users Service
   # ================================
   users:
@@ -31,15 +8,15 @@ services:
       dockerfile: Dockerfile
     container_name: infinite-loopers-users
     environment:
-      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=users
+      DATABASE_URL: file:/app/prisma/dev.db
       PORT: 3012
       NODE_ENV: development
       JWT_SECRET: dev-jwt-secret-change-in-production
+      SHOP_SERVICE_URL: http://shop:3014/shop
     ports:
       - "3012:3012"
-    depends_on:
-      postgres:
-        condition: service_healthy
+    volumes:
+      - users_data:/app/prisma
     networks:
       - infinite-loopers-backend
     restart: unless-stopped
@@ -53,18 +30,17 @@ services:
       dockerfile: Dockerfile
     container_name: infinite-loopers-tasks
     environment:
-      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=tasks
+      DATABASE_URL: file:/app/prisma/dev.db
       PORT: 3010
       NODE_ENV: development
       USERS_SERVICE_URL: http://users:3012
       ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
     ports:
       - "3010:3010"
+    volumes:
+      - tasks_data:/app/prisma
     depends_on:
-      postgres:
-        condition: service_healthy
-      users:
-        condition: service_started
+      - users
     networks:
       - infinite-loopers-backend
     restart: unless-stopped
@@ -78,17 +54,16 @@ services:
       dockerfile: Dockerfile
     container_name: infinite-loopers-achievements
     environment:
-      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=achievements
+      DATABASE_URL: file:/app/prisma/dev.db
       PORT: 3020
       NODE_ENV: development
       USERS_SERVICE_URL: http://users:3012
     ports:
       - "3020:3020"
+    volumes:
+      - achievements_data:/app/prisma
     depends_on:
-      postgres:
-        condition: service_healthy
-      users:
-        condition: service_started
+      - users
     networks:
       - infinite-loopers-backend
     restart: unless-stopped
@@ -102,17 +77,16 @@ services:
       dockerfile: Dockerfile
     container_name: infinite-loopers-shop
     environment:
-      DATABASE_URL: postgresql://infiniteloopers:infiniteloopers_dev_password@postgres:5432/infiniteloopers?schema=shop
+      DATABASE_URL: file:/app/prisma/dev.db
       PORT: 3014
       NODE_ENV: development
       USERS_SERVICE_URL: http://users:3012
     ports:
       - "3014:3014"
+    volumes:
+      - shop_data:/app/prisma
     depends_on:
-      postgres:
-        condition: service_healthy
-      users:
-        condition: service_started
+      - users
     networks:
       - infinite-loopers-backend
     restart: unless-stopped
@@ -128,10 +102,11 @@ services:
     environment:
       PORT: 3011
       NODE_ENV: development
+      FRONTEND_URL: http://localhost:5173
       USERS_SERVICE_URL: http://users:3012
       TASKS_SERVICE_URL: http://tasks:3010
       ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
-      SHOP_SERVICE_URL: http://shop:3014
+      SHOP_SERVICE_URL: http://shop:3014/shop
     ports:
       - "3011:3011"
     depends_on:
@@ -148,4 +123,7 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  users_data:
+  tasks_data:
+  achievements_data:
+  shop_data:

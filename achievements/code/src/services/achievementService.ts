@@ -191,7 +191,8 @@ export async function unlockAchievement(
       }
     });
 
-    await fetch(`http://localhost:3011/users/${userId}/add-rewards`, {
+    const USERS_SERVICE_URL = process.env.USERS_SERVICE_URL || 'http://localhost:3012';
+    await fetch(`${USERS_SERVICE_URL}/users/${userId}/add-rewards`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ xp: achievement.points})

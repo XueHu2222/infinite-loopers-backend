@@ -4,6 +4,11 @@ import { createProxyMiddleware, RequestHandler } from 'http-proxy-middleware';
 
 const router: Router = Express.Router();
 
+// Service URLs from environment variables (for Docker) or defaults (for local dev)
+const USERS_SERVICE_URL = process.env.USERS_SERVICE_URL || 'http://localhost:3012';
+const TASKS_SERVICE_URL = process.env.TASKS_SERVICE_URL || 'http://localhost:3010';
+const SHOP_SERVICE_URL = process.env.SHOP_SERVICE_URL || 'http://localhost:3014';
+
 // helper to fix POST/PUT body
 function fixRequestBody(proxyReq: any, req: Request, res: Response) {
   if (!req.body || Object.keys(req.body).length === 0) return;
@@ -18,33 +23,35 @@ function fixRequestBody(proxyReq: any, req: Request, res: Response) {
   proxyReq.write(bodyData);
 }
 
+// Common proxy options for cookie handling
+const commonProxyOptions = {
+  changeOrigin: true,
+  cookieDomainRewrite: '',
+  on: { proxyReq: fixRequestBody },
+};
+
 // Auth Proxy
 const authProxy = createProxyMiddleware({
-  target: 'http://localhost:3012/auth',
-  changeOrigin: true,
-  on: { proxyReq: fixRequestBody },
+  target: `${USERS_SERVICE_URL}/auth`,
+  ...commonProxyOptions,
 });
 
 // Users Proxy
 const usersProxy = createProxyMiddleware({
-  target: 'http://localhost:3012/users',
-  changeOrigin: true,
-  on: { proxyReq: fixRequestBody },
+  target: `${USERS_SERVICE_URL}/users`,
+  ...commonProxyOptions,
 });
 
 // Shop Proxy
 const shopProxy = createProxyMiddleware({
-  target: 'http://localhost:3014/shop',
-  changeOrigin: true,
-  on: { proxyReq: fixRequestBody },
+  target: SHOP_SERVICE_URL,
+  ...commonProxyOptions,
 });
-
 
 // Task Proxy
 const taskProxy: RequestHandler = createProxyMiddleware({
-  target: 'http://localhost:3010/tasks',
-  changeOrigin: true,
-  on: { proxyReq: fixRequestBody },
+  target: `${TASKS_SERVICE_URL}/tasks`,
+  ...commonProxyOptions,
 });
 
 // Use Proxies

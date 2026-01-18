@@ -157,7 +157,8 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
     // Call achievements service
     let unlockedAchievements = [];
     try {
-      const achievementsRes = await fetch("http://localhost:3020/achievements/webhook/task-completed", {
+      const ACHIEVEMENTS_SERVICE_URL = process.env.ACHIEVEMENTS_SERVICE_URL || 'http://localhost:3020';
+      const achievementsRes = await fetch(`${ACHIEVEMENTS_SERVICE_URL}/achievements/webhook/task-completed`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
