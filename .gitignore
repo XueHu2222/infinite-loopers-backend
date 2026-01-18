@@ -181,6 +181,9 @@ $RECYCLE.BIN/
 
 # End of https://www.gitignore.io/api/osx,node,linux,macos,windows,vagrant,intellij,visualstudiocode
 
+# We don't need pnpm lock files
+pnpm-lock.yaml
+
 # Don't commit build artifacts either
 build/
 

@@ -1,4 +1,4 @@
-# Infinite Loopers - Users Service (SQLite)
+# Infinite Loopers - Achievements Service (SQLite)
 FROM node:20-alpine
 
 WORKDIR /app
@@ -17,12 +17,12 @@ RUN npx prisma generate
 # Copy source code
 COPY code/src ./src
 
-EXPOSE 3012
+EXPOSE 3020
 ENV NODE_ENV=production
-ENV PORT=3012
+ENV PORT=3020
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3012/health || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3020/health || exit 1
 
-# Run migrations and start app
-CMD npx prisma migrate deploy && npx tsx src/start.ts
+# Run migrations, seed database, and start app
+CMD npx prisma migrate deploy && npx prisma db seed && npx tsx src/start.ts

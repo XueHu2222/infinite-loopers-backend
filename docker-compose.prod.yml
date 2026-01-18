@@ -1,0 +1,122 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: infinite-loopers-db-prod
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - infinite-loopers-backend-prod
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+  users:
+    image: infinite-loopers-users:${VERSION:-latest}
+    container_name: infinite-loopers-users-prod
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=users
+      PORT: 3012
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "3012:3012"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - infinite-loopers-backend-prod
+    restart: always
+
+  tasks:
+    image: infinite-loopers-tasks:${VERSION:-latest}
+    container_name: infinite-loopers-tasks-prod
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=tasks
+      PORT: 3010
+      NODE_ENV: production
+      USERS_SERVICE_URL: http://users:3012
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+    ports:
+      - "3010:3010"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend-prod
+    restart: always
+
+  achievements:
+    image: infinite-loopers-achievements:${VERSION:-latest}
+    container_name: infinite-loopers-achievements-prod
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=achievements
+      PORT: 3020
+      NODE_ENV: production
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3020:3020"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend-prod
+    restart: always
+
+  shop:
+    image: infinite-loopers-shop:${VERSION:-latest}
+    container_name: infinite-loopers-shop-prod
+    environment:
+      DATABASE_URL: postgresql://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}?schema=shop
+      PORT: 3014
+      NODE_ENV: production
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3014:3014"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      users:
+        condition: service_started
+    networks:
+      - infinite-loopers-backend-prod
+    restart: always
+
+  apigateway:
+    image: infinite-loopers-gateway:${VERSION:-latest}
+    container_name: infinite-loopers-gateway-prod
+    environment:
+      PORT: 3011
+      NODE_ENV: production
+      USERS_SERVICE_URL: http://users:3012
+      TASKS_SERVICE_URL: http://tasks:3010
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+      SHOP_SERVICE_URL: http://shop:3014
+    ports:
+      - "3011:3011"
+    depends_on:
+      - users
+      - tasks
+      - achievements
+      - shop
+    networks:
+      - infinite-loopers-backend-prod
+    restart: always
+
+networks:
+  infinite-loopers-backend-prod:
+    driver: bridge
+
+volumes:
+  postgres_data_prod:

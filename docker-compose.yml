@@ -1,38 +1,129 @@
 services:
-  appointments:
-    container_name: appointments
-    build: ./appointments
-    volumes:
-      - ./appointments/code:/usr/src/app
-    networks:
-      - veterinarian
-    ports:
-      - "3010:3010"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
-  clients:
-    container_name: clients
-    build: ./clients
-    volumes:
-      - ./clients/code:/usr/src/app
-    networks:
-      - veterinarian
+  # ================================
+  # Users Service
+  # ================================
+  users:
+    build:
+      context: ./users
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-users
+    environment:
+      DATABASE_URL: file:/app/prisma/dev.db
+      PORT: 3012
+      NODE_ENV: development
+      JWT_SECRET: dev-jwt-secret-change-in-production
+      SHOP_SERVICE_URL: http://shop:3014/shop
     ports:
       - "3012:3012"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
-  gateway:
-    container_name: apigateway
-    build: ./apigateway
     volumes:
-      - ./apigateway/code:/usr/src/app
+      - users_data:/app/prisma
     networks:
-      - veterinarian
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Tasks Service
+  # ================================
+  tasks:
+    build:
+      context: ./tasks
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-tasks
+    environment:
+      DATABASE_URL: file:/app/prisma/dev.db
+      PORT: 3010
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+    ports:
+      - "3010:3010"
+    volumes:
+      - tasks_data:/app/prisma
+    depends_on:
+      - users
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Achievements Service
+  # ================================
+  achievements:
+    build:
+      context: ./achievements
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-achievements
+    environment:
+      DATABASE_URL: file:/app/prisma/dev.db
+      PORT: 3020
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3020:3020"
+    volumes:
+      - achievements_data:/app/prisma
+    depends_on:
+      - users
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # Shop Service
+  # ================================
+  shop:
+    build:
+      context: ./shop
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-shop
+    environment:
+      DATABASE_URL: file:/app/prisma/dev.db
+      PORT: 3014
+      NODE_ENV: development
+      USERS_SERVICE_URL: http://users:3012
+    ports:
+      - "3014:3014"
+    volumes:
+      - shop_data:/app/prisma
+    depends_on:
+      - users
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
+
+  # ================================
+  # API Gateway
+  # ================================
+  apigateway:
+    build:
+      context: ./apigateway
+      dockerfile: Dockerfile
+    container_name: infinite-loopers-gateway
+    environment:
+      PORT: 3011
+      NODE_ENV: development
+      FRONTEND_URL: http://localhost:5173
+      USERS_SERVICE_URL: http://users:3012
+      TASKS_SERVICE_URL: http://tasks:3010
+      ACHIEVEMENTS_SERVICE_URL: http://achievements:3020
+      SHOP_SERVICE_URL: http://shop:3014/shop
     ports:
       - "3011:3011"
-    working_dir: /usr/src/app
-    command: bash -c "npm install && npm run dev"
+    depends_on:
+      - users
+      - tasks
+      - achievements
+      - shop
+    networks:
+      - infinite-loopers-backend
+    restart: unless-stopped
 
 networks:
-  veterinarian:
+  infinite-loopers-backend:
     driver: bridge
+
+volumes:
+  users_data:
+  tasks_data:
+  achievements_data:
+  shop_data:
