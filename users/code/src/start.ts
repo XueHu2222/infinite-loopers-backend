@@ -1,14 +1,13 @@
-import Express, { Application, Request, Response, NextFunction } from 'express';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import * as Dotenv from 'dotenv';
+import Express, { Application, Request, Response, NextFunction } from 'express';
 Dotenv.config({ path: '.env' });
 
+import helmet from 'helmet';
+import { errorHandler } from './middleware/errors/errorHandler.ts';
 import AuthRouter from './routes/authRoutes.ts';
 import UserRouter from './routes/userRoutes.ts';
-import { errorHandler } from './middleware/errors/errorHandler.ts';
-import helmet from 'helmet';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-
 
 const app: Application = Express();
 const port: number = process.env.PORT ? parseInt(process.env.PORT) : 3012;

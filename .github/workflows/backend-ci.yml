@@ -29,6 +29,9 @@ jobs:
     - name: Generate Prisma Clients
       run: npm run prisma:generate:all
 
+    - name: Run ESLint
+      run: npm run lint:all
+
     - name: Run tests
       run: npm test
 

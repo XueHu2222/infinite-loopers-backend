@@ -1,4 +1,5 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, expect, jest, beforeEach, afterEach } from '@jest/globals';
 import type { Request, Response, NextFunction } from 'express';
 
 const mockUserFindFirst = jest.fn() as jest.Mock<() => Promise<any>>;

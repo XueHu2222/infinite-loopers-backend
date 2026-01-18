@@ -2,6 +2,7 @@
   "name": "infinite-loopers-backend",
   "version": "1.0.0",
   "description": "Task management system with achievements - microservices backend",
+  "type": "module",
   "scripts": {
     "install:all": "npm install && cd apigateway/code && npm install && cd ../.. && cd users/code && npm install && cd ../.. && cd tasks/code && npm install && cd ../.. && cd achievements/code && npm install && cd ../.. && cd shop/code && npm install && cd ../..",
     "setup:db": "cd users/code && npx prisma migrate dev && cd ../.. && cd tasks/code && npx prisma migrate dev && cd ../.. && cd achievements/code && npx prisma migrate dev && cd ../.. && cd shop/code && npx prisma migrate dev && cd ../..",
@@ -19,13 +20,19 @@
     "prisma:generate:tasks": "cd tasks/code && npx prisma generate",
     "prisma:generate:achievements": "cd achievements/code && npx prisma generate",
     "prisma:generate:shop": "cd shop/code && npx prisma generate",
-    "prisma:generate:all": "npm run prisma:generate:users && npm run prisma:generate:tasks && npm run prisma:generate:achievements && npm run prisma:generate:shop"
+    "prisma:generate:all": "npm run prisma:generate:users && npm run prisma:generate:tasks && npm run prisma:generate:achievements && npm run prisma:generate:shop",
+    "lint:all": "eslint \"apigateway/code/**/*.{ts,js}\" \"users/code/**/*.{ts,js}\" \"tasks/code/**/*.{ts,js}\" \"achievements/code/**/*.{ts,js}\" \"shop/code/**/*.{ts,js}\" --ignore-pattern \"**/coverage/**\" --ignore-pattern \"**/prisma/seeders/**\"",
+    "lint:fix": "eslint \"apigateway/code/**/*.{ts,js}\" \"users/code/**/*.{ts,js}\" \"tasks/code/**/*.{ts,js}\" \"achievements/code/**/*.{ts,js}\" \"shop/code/**/*.{ts,js}\" --fix --ignore-pattern \"**/coverage/**\" --ignore-pattern \"**/prisma/seeders/**\""
   },
   "devDependencies": {
     "@jest/globals": "^30.2.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/jest": "^30.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.53.0",
+    "@typescript-eslint/parser": "^8.53.0",
     "concurrently": "^8.2.2",
+    "eslint": "^9.39.2",
+    "eslint-plugin-import": "^2.32.0",
     "jest": "^30.2.0",
     "jest-mock-extended": "^4.0.0",
     "ts-jest": "^29.4.6",

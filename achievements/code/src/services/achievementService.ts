@@ -1,4 +1,4 @@
-import { PrismaClient, Achievement, UserAchievement, UserStats } from '@prisma/client';
+import { PrismaClient, Achievement } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
