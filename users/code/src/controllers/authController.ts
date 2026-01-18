@@ -1,6 +1,6 @@
-import type { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import type { Request, Response, NextFunction } from 'express';
 
 const prisma = new PrismaClient();
 
@@ -64,11 +64,11 @@ export async function login(req: Request, res: Response, next: NextFunction): Pr
       return;
     }
 
-    res.cookie("userId", user.id, {
+    res.cookie('userId', user.id, {
       httpOnly: false,
       secure: false,
-      path: "/",
-      sameSite: "lax"
+      path: '/',
+      sameSite: 'lax'
     });
 
     res.status(200).json({

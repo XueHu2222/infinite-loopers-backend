@@ -1,9 +1,9 @@
-import Express, { Application, Request, Response, NextFunction } from 'express';
-import * as Dotenv from 'dotenv';
-import helmet from 'helmet';
 import cors from 'cors';
-import IndexRouter from './routes/index.ts';
+import * as Dotenv from 'dotenv';
+import Express, { Application, Request, Response, NextFunction } from 'express';
+import helmet from 'helmet';
 import { errorHandler } from './middleware/errors/errorHandler.ts';
+import IndexRouter from './routes/index.ts';
 
 Dotenv.config({ path: '.env' });
 

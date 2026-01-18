@@ -193,12 +193,3 @@ build/
 
 # PRISMA
 **/prisma/*.db
-
-# Claude Code
-.claude/
-
-# Plan files
-quest-giver-BACKEND-plan.md
-
-# Personal Docker notes
-DOCKER_NOTES.md

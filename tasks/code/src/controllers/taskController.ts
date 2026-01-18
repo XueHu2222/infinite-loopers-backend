@@ -1,15 +1,17 @@
-import { Request, Response, NextFunction } from "express";
-import { PrismaClient } from "@prisma/client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PrismaClient } from '@prisma/client';
+import { Request, Response, NextFunction } from 'express';
 
 const prisma = new PrismaClient();
 
 export async function getTasks(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
 
     const tasks = await prisma.task.findMany({
       where: { userId },
-      orderBy: { createdAt: "desc" },
+      orderBy: { createdAt: 'desc' },
     });
 
     res.status(200).json({ success: true, tasks });
@@ -49,7 +51,7 @@ export async function addTask(req: Request, res: Response, next: NextFunction) {
  */
 export async function updateTask(req: Request, res: Response) {
   try {
-    const taskId = parseInt(req.params.taskId);
+    const taskId = parseInt(String(req.params.taskId));
 
     const existingTask = await prisma.task.findUnique({
       where: { id: taskId },
@@ -109,7 +111,7 @@ export async function updateTask(req: Request, res: Response) {
 // Complete a task and check for achievements
 export async function completeTask(req: Request, res: Response, next: NextFunction) {
   try {
-    const taskId = parseInt(req.params.taskId);
+    const taskId = parseInt(String(req.params.taskId));
 
     // Get the task
     const task = await prisma.task.findUnique({
@@ -117,18 +119,18 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
     });
 
     if (!task) {
-      return res.status(404).json({ success: false, message: "Task not found" });
+      return res.status(404).json({ success: false, message: 'Task not found' });
     }
 
-    if (task.status === "Completed") {
-      return res.status(400).json({ success: false, message: "Task already completed" });
+    if (task.status === 'Completed') {
+      return res.status(400).json({ success: false, message: 'Task already completed' });
     }
 
     // Mark task as completed
     const updatedTask = await prisma.task.update({
       where: { id: taskId },
       data: {
-        status: "Completed",
+        status: 'Completed',
         completedAt: new Date(),
       },
     });
@@ -137,7 +139,7 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
     const completedCount = await prisma.task.count({
       where: {
         userId: task.userId,
-        status: "Completed",
+        status: 'Completed',
       },
     });
 
@@ -147,7 +149,7 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
     const completedToday = await prisma.task.count({
       where: {
         userId: task.userId,
-        status: "Completed",
+        status: 'Completed',
         completedAt: {
           gte: today,
         },
@@ -159,8 +161,8 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
     try {
       const ACHIEVEMENTS_SERVICE_URL = process.env.ACHIEVEMENTS_SERVICE_URL || 'http://localhost:3020';
       const achievementsRes = await fetch(`${ACHIEVEMENTS_SERVICE_URL}/achievements/webhook/task-completed`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: task.userId,
           completedCount,
@@ -176,13 +178,13 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
         unlockedAchievements = achievementsData.unlockedAchievements;
       }
     } catch (error) {
-      console.error("Failed to check achievements:", error);
+      console.error('Failed to check achievements:', error);
       // Continue even if achievements service fails
     }
 
     res.status(200).json({
       success: true,
-      message: "Task completed successfully",
+      message: 'Task completed successfully',
       task: updatedTask,
       unlockedAchievements,
     });
@@ -193,7 +195,7 @@ export async function completeTask(req: Request, res: Response, next: NextFuncti
 
 export async function deleteTask(req: Request, res: Response, next: NextFunction) {
   try {
-    const taskId = parseInt(req.params.taskId);
+    const taskId = parseInt(String(req.params.taskId));
 
     // Check if task exists
     const task = await prisma.task.findUnique({
@@ -203,7 +205,7 @@ export async function deleteTask(req: Request, res: Response, next: NextFunction
     if (!task) {
       return res.status(404).json({
         success: false,
-        message: "Task not found",
+        message: 'Task not found',
       });
     }
     await prisma.task.delete({
@@ -212,7 +214,7 @@ export async function deleteTask(req: Request, res: Response, next: NextFunction
 
     res.status(200).json({
       success: true,
-      message: "Task deleted successfully",
+      message: 'Task deleted successfully',
     });
   } catch (err) {
     next(err);

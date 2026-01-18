@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { PrismaClient } from '@prisma/client';
+import { Request, Response } from 'express';
 import { Decoration } from '../../prisma/types.ts';
 const prisma: PrismaClient = new PrismaClient();
 
@@ -22,7 +23,7 @@ export async function getDecoration(req: Request, res: Response): Promise<Respon
     const decoration = await prisma.decoration.findFirst({ where: { id: decorationId }});
     return res.status(200).json({
       meta: {
-        title: `Decoration information`,
+        title: 'Decoration information',
         url: req.url
       },
       data: decoration
@@ -44,7 +45,7 @@ export async function getAllDecorations(req: Request, res: Response): Promise<vo
     const decorationsResponse: DecorationsResponse = {
       meta: {
         count: allDecorations.length,
-        title: `All decorations available in the store`,
+        title: 'All decorations available in the store',
         url: req.url
       },
       data: allDecorations.map(dec => ({...dec, position: dec.position as Decoration['position']}))

@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Request, Response } from 'express';
 
-export function errorHandler(err: any, req: Request, res: Response, next: NextFunction) {
+export function errorHandler(err: any, req: Request, res: Response) {
   console.error('Error:', err);
   res.status(err.cause || 500).json({
     success: false,

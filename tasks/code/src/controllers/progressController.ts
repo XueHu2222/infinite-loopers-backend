@@ -1,11 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { PrismaClient } from '@prisma/client';
+import { Request, Response, NextFunction } from 'express';
 
 const prisma = new PrismaClient();
 
 export async function getProgress(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = parseInt(req.params.userId);
+    const userId = parseInt(String(req.params.userId));
 
     if (isNaN(userId)) {
       res.status(400).json({ success: false, message: 'Invalid user ID' });
@@ -98,7 +99,7 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
     }
 
     // --- TIE LOGIC ---
-    let topCategoryName = "No quests completed";
+    let topCategoryName = 'No quests completed';
     let topCategoryValue = 0;
 
     if (categories.length > 0) {
@@ -149,7 +150,7 @@ export async function getProgress(req: Request, res: Response, next: NextFunctio
       }
     }
 
-    const finalBestDay = bestDayObj.completed > 0 ? bestDayObj.day : "No activity yet";
+    const finalBestDay = bestDayObj.completed > 0 ? bestDayObj.day : 'No activity yet';
     const finalBestDayCount = bestDayObj.completed;
 
     const insights = {
