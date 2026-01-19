@@ -1,0 +1,50 @@
+name: Backend Docker Startup
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASS: ${{ secrets.DB_PASS }}
+  DB_NAME_AUTH: ${{ secrets.DB_NAME_AUTH }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: docker compose version
+
+      - name: Create .env file for Docker
+        run: |
+          cat > .env << EOF
+          DB_HOST=${{ env.DB_HOST }}
+          DB_USER=${{ env.DB_USER }}
+          DB_PASS=${{ env.DB_PASS }}
+          DB_NAME_AUTH=${{ env.DB_NAME_AUTH }}
+          JWT_SECRET=${{ env.JWT_SECRET }}
+          EOF
+
+      - name: Start Docker services
+        run: |
+          docker compose up -d
+          echo "Waiting for services to be ready..."
+          for i in {1..15}; do
+            if nc -z localhost 3012 && nc -z localhost 3010; then
+              echo "Services are ready!"
+              break
+            fi
+            echo "Waiting... ($i)"
+            sleep 2
+          done
+
+      - name: List running containers
+        run: docker ps
