@@ -1,4 +1,4 @@
-name: Backend Docker Startup
+name: Backend Docker Startup and run test
 
 on:
   push:
@@ -96,3 +96,7 @@ jobs:
       # 8️ List running containers
       - name: List running containers
         run: docker ps
+
+      # 9 Run tests
+      - name: Run tests
+        run: npm test
