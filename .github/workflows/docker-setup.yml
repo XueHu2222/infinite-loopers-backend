@@ -1,0 +1,102 @@
+name: Backend Docker Startup and run test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  # Database configuration
+  DB_HOST: ${{ secrets.DB_HOST || 'mariadb' }}
+  DB_USER: ${{ secrets.DB_USER || 'root' }}
+  DB_PASS: ${{ secrets.DB_PASS || 'rootpw' }}
+  DB_NAME_AUTH: ${{ secrets.DB_NAME_AUTH || 'auth_db' }}
+
+  # Application configuration
+  JWT_SECRET: ${{ secrets.JWT_SECRET || 'devsecret' }}
+  NODE_ENV: ${{ secrets.NODE_ENV || 'development' }}
+  
+  # Service ports aligned with your docker-compose
+  AUTH_PORT: ${{ secrets.AUTH_PORT || '3012' }}
+  TASKS_PORT: ${{ secrets.TASKS_PORT || '3010' }}
+  ACHIEVEMENTS_PORT: ${{ secrets.ACHIEVEMENTS_PORT || '3020' }}
+  SHOP_PORT: ${{ secrets.SHOP_PORT || '3014' }}
+  GATEWAY_PORT: ${{ secrets.GATEWAY_PORT || '3011' }}
+
+jobs:
+  build-and-start:
+    runs-on: ubuntu-latest
+    steps:
+      # 1 Checkout code
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2️ Install Node.js
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      # 3️ Install dependencies on runner
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install service dependencies
+        run: npm run install:all
+
+      - name: Generate Prisma Clients
+        run: npm run prisma:generate:all
+
+      # 4️ Set up Docker Compose
+      - name: Set up Docker Compose
+        run: docker compose version
+
+      # 5️ Build Docker images
+      - name: Build gateway image
+        run: docker build -t infinite-loopers-gateway ./apigateway
+
+      - name: Build auth-service image
+        run: docker build -t infinite-loopers-users ./users
+
+      - name: Build tasks-service image
+        run: docker build -t infinite-loopers-tasks ./tasks
+
+      - name: Build achievements-service image
+        run: docker build -t infinite-loopers-achievements ./achievements
+
+      - name: Build shop-service image
+        run: docker build -t infinite-loopers-shop ./shop
+
+      # 6️ Create .env file for Docker Compose
+      - name: Create .env file
+        run: |
+          cat > .env << EOF
+          DB_HOST=${{ env.DB_HOST }}
+          DB_USER=${{ env.DB_USER }}
+          DB_PASS=${{ env.DB_PASS }}
+          DB_NAME_AUTH=${{ env.DB_NAME_AUTH }}
+          JWT_SECRET=${{ env.JWT_SECRET }}
+          NODE_ENV=${{ env.NODE_ENV }}
+          AUTH_PORT=${{ env.AUTH_PORT }}
+          TASKS_PORT=${{ env.TASKS_PORT }}
+          ACHIEVEMENTS_PORT=${{ env.ACHIEVEMENTS_PORT }}
+          SHOP_PORT=${{ env.SHOP_PORT }}
+          GATEWAY_PORT=${{ env.GATEWAY_PORT }}
+          EOF
+
+      # 7️ Start all Docker services
+      - name: Start all Docker services
+        run: |
+          docker compose up -d
+          echo "Waiting 15 seconds for services to start..."
+          sleep 15
+
+      # 8️ List running containers
+      - name: List running containers
+        run: docker ps
+
+      # 9 Run tests
+      - name: Run tests
+        run: npm test

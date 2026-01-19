@@ -32,9 +32,6 @@ jobs:
     - name: Run ESLint
       run: npm run lint:all
 
-    - name: Run tests
-      run: npm test
-
     - name: Notify Microsoft Teams on failure
       if: failure()
       uses: jdcargile/ms-teams-notification@v1.2
