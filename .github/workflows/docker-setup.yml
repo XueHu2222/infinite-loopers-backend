@@ -27,13 +27,31 @@ jobs:
   build-and-start:
     runs-on: ubuntu-latest
     steps:
+      # 1 Checkout code
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # 2️ Install Node.js
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      # 3️ Install dependencies on runner
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install service dependencies
+        run: npm run install:all
+
+      - name: Generate Prisma Clients
+        run: npm run prisma:generate:all
+
+      # 4️ Set up Docker Compose
       - name: Set up Docker Compose
         run: docker compose version
 
-      # Build images
+      # 5️ Build Docker images
       - name: Build gateway image
         run: docker build -t infinite-loopers-gateway ./apigateway
 
@@ -49,7 +67,7 @@ jobs:
       - name: Build shop-service image
         run: docker build -t infinite-loopers-shop ./shop
 
-      # Create .env for docker compose
+      # 6️ Create .env file for Docker Compose
       - name: Create .env file
         run: |
           cat > .env << EOF
@@ -66,12 +84,13 @@ jobs:
           GATEWAY_PORT=${{ env.GATEWAY_PORT }}
           EOF
 
-      # Start all services
+      # 7️ Start all Docker services
       - name: Start all Docker services
         run: |
           docker compose up -d
           echo "Waiting 15 seconds for services to start..."
           sleep 15
 
+      # 8️ List running containers
       - name: List running containers
         run: docker ps
