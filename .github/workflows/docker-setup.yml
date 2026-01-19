@@ -100,3 +100,13 @@ jobs:
       # 9 Run tests
       - name: Run tests
         run: npm test
+
+      # 10 Notify on failure
+      - name: Notify Microsoft Teams on failure
+        if: failure()
+        uses: jdcargile/ms-teams-notification@v1.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          notification-summary: Build failed in the "Quest Giver Backend CI" workflow
+          notification-color: dc3545
