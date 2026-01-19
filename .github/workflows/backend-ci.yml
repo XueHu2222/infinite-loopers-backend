@@ -32,6 +32,20 @@ jobs:
     - name: Run ESLint
       run: npm run lint:all
 
+    - name: Start all Docker services
+      run: |
+        docker compose up -d
+        echo "Waiting for services to be ready..."
+        for i in {1..15}; do
+          if nc -z localhost 3012 && nc -z localhost 3010; then
+            echo "Services are ready!"
+            break
+          fi
+          echo "Waiting for services... ($i)"
+          sleep 2
+        done
+
+
     - name: Run tests
       run: npm test
 
