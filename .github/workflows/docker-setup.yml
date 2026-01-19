@@ -6,16 +6,26 @@ on:
   workflow_dispatch:
 
 env:
-  DB_HOST: ${{ secrets.DB_HOST }}
-  DB_USER: ${{ secrets.DB_USER }}
-  DB_PASS: ${{ secrets.DB_PASS }}
-  DB_NAME_AUTH: ${{ secrets.DB_NAME_AUTH }}
-  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  # Database configuration
+  DB_HOST: ${{ secrets.DB_HOST || 'mariadb' }}
+  DB_USER: ${{ secrets.DB_USER || 'root' }}
+  DB_PASS: ${{ secrets.DB_PASS || 'rootpw' }}
+  DB_NAME_AUTH: ${{ secrets.DB_NAME_AUTH || 'auth_db' }}
+
+  # Application configuration
+  JWT_SECRET: ${{ secrets.JWT_SECRET || 'devsecret' }}
+  NODE_ENV: ${{ secrets.NODE_ENV || 'development' }}
+  
+  # Service ports aligned with your docker-compose
+  AUTH_PORT: ${{ secrets.AUTH_PORT || '3012' }}
+  TASKS_PORT: ${{ secrets.TASKS_PORT || '3010' }}
+  ACHIEVEMENTS_PORT: ${{ secrets.ACHIEVEMENTS_PORT || '3020' }}
+  SHOP_PORT: ${{ secrets.SHOP_PORT || '3014' }}
+  GATEWAY_PORT: ${{ secrets.GATEWAY_PORT || '3011' }}
 
 jobs:
-  docker:
+  build-and-start:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -23,7 +33,24 @@ jobs:
       - name: Set up Docker Compose
         run: docker compose version
 
-      - name: Create .env file for Docker
+      # Build images
+      - name: Build gateway image
+        run: docker build -t infinite-loopers-gateway ./apigateway
+
+      - name: Build auth-service image
+        run: docker build -t infinite-loopers-users ./users
+
+      - name: Build tasks-service image
+        run: docker build -t infinite-loopers-tasks ./tasks
+
+      - name: Build achievements-service image
+        run: docker build -t infinite-loopers-achievements ./achievements
+
+      - name: Build shop-service image
+        run: docker build -t infinite-loopers-shop ./shop
+
+      # Create .env for docker compose
+      - name: Create .env file
         run: |
           cat > .env << EOF
           DB_HOST=${{ env.DB_HOST }}
@@ -31,20 +58,20 @@ jobs:
           DB_PASS=${{ env.DB_PASS }}
           DB_NAME_AUTH=${{ env.DB_NAME_AUTH }}
           JWT_SECRET=${{ env.JWT_SECRET }}
+          NODE_ENV=${{ env.NODE_ENV }}
+          AUTH_PORT=${{ env.AUTH_PORT }}
+          TASKS_PORT=${{ env.TASKS_PORT }}
+          ACHIEVEMENTS_PORT=${{ env.ACHIEVEMENTS_PORT }}
+          SHOP_PORT=${{ env.SHOP_PORT }}
+          GATEWAY_PORT=${{ env.GATEWAY_PORT }}
           EOF
 
-      - name: Start Docker services
+      # Start all services
+      - name: Start all Docker services
         run: |
           docker compose up -d
-          echo "Waiting for services to be ready..."
-          for i in {1..15}; do
-            if nc -z localhost 3012 && nc -z localhost 3010; then
-              echo "Services are ready!"
-              break
-            fi
-            echo "Waiting... ($i)"
-            sleep 2
-          done
+          echo "Waiting 15 seconds for services to start..."
+          sleep 15
 
       - name: List running containers
         run: docker ps
