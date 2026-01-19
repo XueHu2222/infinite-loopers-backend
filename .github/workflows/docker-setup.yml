@@ -2,7 +2,7 @@ name: Backend Docker Startup
 
 on:
   push:
-    branches: [ "main", "XueHu2222-patch-2" ]
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
