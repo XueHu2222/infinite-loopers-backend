@@ -10,7 +10,7 @@ describe('Smoke test - users service', () => {
             });
             expect(res.status).toBeLessThan(500);
         } catch (err) {
-            console.error(err);
+            console.log(err);
             throw new Error('Users service is not running on port 3012');
         }
     });

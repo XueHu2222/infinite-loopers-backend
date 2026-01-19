@@ -15,9 +15,11 @@ export default {
       },
     ],
   },
-   roots: [
+  roots: [
     '<rootDir>/users/code/src',
     '<rootDir>/users/code/tests',
+    '<rootDir>/tasks/code/src',
+    '<rootDir>/tasks/code/tests'
   ],
   testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
