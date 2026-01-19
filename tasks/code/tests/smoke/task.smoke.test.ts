@@ -35,11 +35,12 @@ describe('Smoke test - users & tasks services', () => {
                 }),
             });
             expect(res.status).toBeLessThan(500);
-        } catch (_) {
+        } catch (error) {
+            console.log(error);
             throw new Error('Tasks service is not running on port 3010');
         }
     });
- 
+
     it('can get tasks for a user', async () => {
         try {
             const res = await fetch(`${tasksUrl}/tasks/${testUserId}`);
