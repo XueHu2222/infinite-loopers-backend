@@ -25,7 +25,7 @@ jest.unstable_mockModule('bcryptjs', () => ({
     },
 }));
 
-const auth = await import('../src/controllers/authController.js');
+const auth = await import('../../src/controllers/authController.ts');
 const { register, login } = auth;
 
 let mockRequest: any;
