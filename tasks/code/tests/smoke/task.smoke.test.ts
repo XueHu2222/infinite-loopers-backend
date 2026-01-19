@@ -14,7 +14,8 @@ describe('Smoke test - users & tasks services', () => {
                 body: JSON.stringify({ email: 'smoke@test.com', password: '123456' }),
             });
             expect(res.status).toBeLessThan(500);
-        } catch (_) {
+        } catch (error) {
+            console.log(error);
             throw new Error('Users service is not running on port 3012');
         }
     });
@@ -22,7 +23,7 @@ describe('Smoke test - users & tasks services', () => {
     // --------- Tasks service smoke test ---------
     it('can add a task', async () => {
         try {
-            const res = await fetch(`${tasksUrl}/tasks`, {
+            const res = await fetch(`${tasksUrl}/tasks/${testUserId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -46,7 +47,8 @@ describe('Smoke test - users & tasks services', () => {
 
             const data = await res.json();
             expect(Array.isArray(data.tasks)).toBe(true);
-        } catch (_) {
+        } catch (error) {
+            console.log(error);
             throw new Error('Tasks service is not running on port 3010');
         }
     });
